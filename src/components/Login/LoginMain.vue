@@ -18,7 +18,7 @@ const handlerLogin = () => {
       sessionStorage.setItem('userInfo', JSON.stringify(data));
       setUserData(data);
       router.push('/vue');
-    } else {
+    } else { 
       alert('아이디 혹은 비밀번호가 일치하지 않아요');
       return;
     }
