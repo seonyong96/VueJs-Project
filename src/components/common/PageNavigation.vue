@@ -44,6 +44,9 @@
 <script setup>
 import { ref, computed } from 'vue';
 
+// @totalItems : 총 리스트의 요소의 갯수
+// @itemsPerPage : 페이지당 보여 줄 요소의 개수
+// @onPageChange : 페이징 버튼 누를 때 마다 실행되는 함수
 const props = defineProps({
   totalItems: {
     type: Number,

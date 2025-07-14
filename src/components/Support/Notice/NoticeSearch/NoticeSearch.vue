@@ -1,13 +1,41 @@
-<script setup></script>
+<script setup>
+import router from '@/router';
+import { useModalState } from '@/stores/modalState';
+import { onMounted, ref } from 'vue';
+
+const searchTitle = ref('');
+const searchStDate = ref('');
+const searchEdDate = ref('');
+const modalState = useModalState();
+
+// 검색 버튼을 클릭을 할때, 검색 데이터가 queryParam 에 들어가게끔 하는 함수
+const handlerSearch = () => {
+  const query = [];
+
+  // 1. searchTitle의 값이 있을 경우, query는 array에 담아 둘껍니다.
+  !searchTitle.value || query.push(`title=${searchTitle.value}`);
+  !searchStDate.value || query.push(`startDate=${searchStDate.value}`);
+  !searchEdDate.value || query.push(`endDate=${searchEdDate.value}`);
+
+  const queryString = query.length > 0 ? `?${query.join('&')}` : '';
+
+  router.push(queryString);
+};
+
+// 주소창 초기화
+onMounted(() => {
+  window.location.search && router.replace(window.localStorage.pathname);
+});
+</script>
 
 <template>
   <div class="notice-container">
     <div class="input-box">
-      제목: <input />
-      <input type="date" />
-      <input type="date" />
-      <button>검색</button>
-      <button>등록</button>
+      제목: <input v-model.lazy="searchTitle" />
+      <input v-model="searchStDate" type="date" />
+      <input v-model="searchEdDate" type="date" />
+      <button @click="handlerSearch">검색</button>
+      <button @click="modalState.$patch({ isOpen: true })">등록</button>
     </div>
   </div>
 </template>

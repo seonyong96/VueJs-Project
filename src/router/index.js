@@ -20,11 +20,11 @@ const router = createRouter({
     {
       path: '/vue',
       component: DashBoard,
-      children:[
+      children: [
         {
-          path : 'support',
-          name : 'support',
-          children:[
+          path: 'support',
+          name: 'support',
+          children: [
             {
               path: 'notice',
               name: 'notice',
