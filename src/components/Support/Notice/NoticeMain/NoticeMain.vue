@@ -10,6 +10,7 @@ const route = useRoute();
 const noticeList = ref([]);
 const noticeCount = ref(0);
 const modalState = useModalState();
+const detailId = ref(0);
 
 console.log(route);
 
@@ -35,8 +36,9 @@ onMounted(() => {
   noticeSearch();
 });
 
-const noticeDeatil = () => {
+const noticeDeatil = (id) => {
   modalState.$patch({ isOpen: true });
+  detailId.value = id;
 };
 </script>
 
@@ -55,7 +57,10 @@ const noticeDeatil = () => {
         <template v-if="noticeCount > 0">
           <tr v-for="notice in noticeList" :key="notice.noticeId" class="notice-table-row">
             <td class="notice-cell">{{ notice.noticeId }}</td>
-            <td class="notice-cell cursor-pointer hover:underline" @click="noticeDeatil">
+            <td
+              class="notice-cell cursor-pointer hover:underline"
+              @click="noticeDeatil(notice.noticeId)"
+            >
               {{ notice.noticeTitle }}
             </td>
             <td class="notice-cell">{{ notice.regDate.substr(0, 10) }}</td>
@@ -71,7 +76,12 @@ const noticeDeatil = () => {
     </table>
     <PageNavigation :total-items="noticeCount" :items-per-page="5" :on-page-change="noticeSearch" />
   </div>
-  <NoticeModal v-if="modalState.isOpen" />
+  <NoticeModal
+    v-if="modalState.isOpen"
+    :detail-id="detailId"
+    @post-success="noticeSearch()"
+    @un-mounted-modal="detailId = $event"
+  />
 </template>
 
 <style>
