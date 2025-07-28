@@ -42,7 +42,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 
 // @totalItems : 총 리스트의 요소의 갯수
 // @itemsPerPage : 페이지당 보여 줄 요소의 개수
@@ -84,6 +84,14 @@ const handlePageChange = (page) => {
   currentPage.value = page;
   props.onPageChange(page);
 };
+
+watch(
+  () => props.totalItems,
+  () => {
+    currentPage.value = 1;
+    props.onPageChange(1);
+  },
+);
 </script>
 
 <style scoped>

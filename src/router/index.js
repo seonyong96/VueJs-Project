@@ -1,7 +1,9 @@
 import Login from '@/views/Auth/Login.vue';
 import DashBoard from '@/views/DashBoard/DashBoard.vue';
+import Recruit from '@/views/Manage/Recruit.vue';
 import NotFound from '@/views/NotFound/NotFound.vue';
 import Notice from '@/views/Support/Notice.vue';
+import Company from '@/views/System/Company.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
@@ -29,6 +31,28 @@ const router = createRouter({
               path: 'notice',
               name: 'notice',
               component: Notice,
+            },
+          ],
+        },
+        {
+          path: 'system',
+          name: 'system',
+          children: [
+            {
+              path: 'company',
+              name: 'company',
+              component: Company,
+            },
+          ],
+        },
+        {
+          path: 'manage',
+          name: 'manage',
+          children: [
+            {
+              path: 'recruit',
+              name: 'recruit',
+              component: Recruit,
             },
           ],
         },

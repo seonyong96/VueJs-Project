@@ -11,18 +11,23 @@ const noticeList = ref([]);
 const noticeCount = ref(0);
 const modalState = useModalState();
 const detailId = ref(0);
+const cPage = ref(1);
 
 console.log(route);
 
-const noticeSearch = (cPage = 1) => {
+const noticeSearch = (page) => {
+  cPage.value = page;
+
   const param = new URLSearchParams(route.query);
-  param.append('currentPage', cPage);
+  param.append('currentPage', cPage.value);
   param.append('pageSize', 5);
 
   axios.post('/api/support/noticeListBody.do', param).then((res) => {
     noticeList.value = res.data.list;
     noticeCount.value = res.data.count;
   });
+
+  console.log(cPage);
 };
 
 watch(
@@ -33,11 +38,12 @@ watch(
 );
 
 onMounted(() => {
-  noticeSearch();
+  noticeSearch(1);
 });
 
 const noticeDeatil = (id) => {
   modalState.$patch({ isOpen: true });
+  modalState.$patch({ type: 'notice' });
   detailId.value = id;
 };
 </script>
@@ -77,8 +83,8 @@ const noticeDeatil = (id) => {
     <PageNavigation :total-items="noticeCount" :items-per-page="5" :on-page-change="noticeSearch" />
   </div>
   <NoticeModal
-    v-if="modalState.isOpen"
-    :detail-id="detailId"
+    v-if="modalState.isOpen && modalState.type === 'notice'"
+    :detail-id
     @post-success="noticeSearch()"
     @un-mounted-modal="detailId = $event"
   />
