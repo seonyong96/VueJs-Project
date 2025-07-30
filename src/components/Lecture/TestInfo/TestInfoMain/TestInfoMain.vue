@@ -90,10 +90,12 @@ const testInfoDeatil = (lecId, testId) => {
     />
   </div>
   <testInfoModal
-    v-if="modalState.isOpen && modalState.type === 'testInfo'"
+    v-if="
+      modalState.isOpen && (modalState.type === 'testInfo' || modalState.type === 'testInfoNew')
+    "
     :detail-lec-id
     :detail-test-id
-    @post-success="noticeSearch()"
+    @post-success="testInfoSearch()"
     @un-mounted-modal="detailId = $event"
   />
 </template>

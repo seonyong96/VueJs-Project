@@ -8,6 +8,7 @@ const { detailLecId: lecId, detailTestId: testId } = defineProps({
   detailLecId: { type: Number, default: 0 },
   detailTestId: { type: Number, default: 0 },
 });
+
 const detail = ref({});
 const emit = defineEmits(['postSuccess', 'unMountedModal']);
 
@@ -16,12 +17,8 @@ const selectBox = ref('');
 const selectedIns = ref('');
 const selectedRoom = ref('');
 
-const initializeState = () => {
-  detail.value = {};
-  selectBox.value = '';
-  selectedIns.value = '';
-  selectedRoom.value = '';
-};
+// const testBeginDate = ref('');
+// const testEndDate = ref('');
 
 const testInfoSelectBox = () => {
   const param = new URLSearchParams();
@@ -37,7 +34,9 @@ const testInfoDetail = () => {
 
   axios.post('/api/lecture/testInfoDetail.do', param).then((res) => {
     detail.value = res.data.testInfoDetail;
-    console.log(detail.value.lecName);
+
+    console.log('=================st', detail.value.testBeginDate);
+    console.log('=================ed', detail.value.testEndDate);
   });
 };
 
@@ -46,35 +45,67 @@ const selectBoxHandler = () => {
 
   selectedIns.value = selectList.value.find((item) => item.lecName === selected);
   selectedRoom.value = selectList.value.find((item) => item.lecName === selected);
+  console.log(selectList.value);
 };
 
-const testInfoSave = () => {};
+const testInfoSave = () => {
+  const findLecId = selectList.value.find((item) => item.lecName === selectBox.value);
 
-const testInfoUpdate = () => {};
+  const param = {
+    lecId: findLecId.lecId,
+    testBeginDate: detail.value.testBeginDate.replace('T', ' ') + ':00',
+    testEndDate: detail.value.testEndDate.replace('T', ' ') + ':00',
+    testType: 0,
+  };
 
-watch(
-  [() => lecId, () => testId],
-  ([newLecId, newTestId], [oldLecId, oldTestId]) => {
-    if (newLecId !== oldLecId || newTestId !== oldTestId) {
-      initializeState();
-
-      if (newLecId && newTestId) {
-        testInfoDetail();
-      }
+  axios.post('/api/lecture/testInfoSave.do', param).then((res) => {
+    if (res.data.result === 'success') {
+      alert('저장되었습니다.');
+      modalState.$patch({ isOpne: false, type: null });
+      emit('postSuccess');
     }
-  },
-  { immediate: false },
-);
+  });
+};
+
+const testInfoUpdate = () => {
+  // const param = {
+  //   lecId: detail.value.lecId,
+  //   testBeginDate: detail.value.testBeginDate.replace('T', ' ') + ':00',
+  //   testEndDate: detail.value.testEndDate.replace('T', ' ') + ':00',
+  // };
+  // const updateStdt = detail.value.testBeginDate;
+  // const updateEddt = detail.value.testEndDate;
+
+  const param = new URLSearchParams();
+  param.append('lecId', detail.value.lecId);
+  param.append('testId', detail.value.testId);
+  param.append('testBeginDate', detail.value.testBeginDate.replace('T', ' ') + ':00');
+  param.append('testEndDate', detail.value.testEndDate.replace('T', ' ') + ':00');
+
+  console.log('-----------------st', detail.value.testBeginDate);
+  console.log('-----------------ed', detail.value.testEndDate);
+  axios.post('/api/lecture/testInfoUpdate.do', param).then((res) => {
+    if (res.data.result === 'success') {
+      alert('수정되었습니다.');
+      closeModal();
+      emit('postSuccess');
+    }
+  });
+};
+
+const closeModal = () => {
+  modalState.$patch({ isOpen: false, type: null });
+};
 
 watch(selectBox, () => {
   selectBoxHandler();
 });
 
 onMounted(() => {
-  if (lecId && testId) {
+  testInfoSelectBox();
+  if (modalState.type === 'testInfo') {
     testInfoDetail();
   }
-  testInfoSelectBox();
 });
 
 onUnmounted(() => {
@@ -93,7 +124,7 @@ onUnmounted(() => {
               <tr>
                 <th>강의</th>
                 <td>
-                  <select v-if="lecId" :value="detail.lecName">
+                  <select v-if="modalState.type === 'testInfo'" :value="detail.lecName">
                     <option :disabled="true">{{ detail.lecName }}</option>
                   </select>
                   <select v-else v-model="selectBox">
@@ -106,33 +137,48 @@ onUnmounted(() => {
               </tr>
               <tr>
                 <th>강사</th>
-                <td>{{ lecId ? detail.lecInstructorName : selectedIns.lecInstructorName }}</td>
+                <td>
+                  {{
+                    modalState.type === 'testInfo'
+                      ? detail.lecInstructorName
+                      : selectedIns.lecInstructorName
+                  }}
+                </td>
               </tr>
               <tr>
                 <th>강의실</th>
-                <td>{{ lecId ? detail.lecRoomName : selectedIns.lecRoomName }}</td>
+                <td>
+                  {{
+                    modalState.type === 'testInfo' ? detail.lecRoomName : selectedIns.lecRoomName
+                  }}
+                </td>
               </tr>
               <tr>
                 <th>시험 시작일</th>
                 <td>
-                  <input v-model="detail.testBeginDate" type="datetime-local" />
+                  <input
+                    v-model="detail.testBeginDate"
+                    type="datetime-local"
+                    name="testBeginDate"
+                  />
                 </td>
               </tr>
               <tr>
-                <th>강의 종료일</th>
+                <th>시험 종료일</th>
                 <td>
-                  <input v-model="detail.testEndDate" type="datetime-local" />
+                  <input v-model="detail.testEndDate" type="datetime-local" name="testEndDate" />
                 </td>
               </tr>
             </tbody>
           </table>
           <div class="button-container">
-            <button type="button" @click="!lecid ? testInfoSave() : testInfoUpdate()">
+            <button
+              type="button"
+              @click="modalState.type === 'testInfoNew' ? testInfoSave() : testInfoUpdate()"
+            >
               {{ !lecId ? '저장' : '수정' }}
             </button>
-            <button type="button" @click="modalState.$patch({ isOpen: false, type: null })">
-              취소
-            </button>
+            <button type="button" @click="closeModal()">취소</button>
           </div>
         </form>
       </div>

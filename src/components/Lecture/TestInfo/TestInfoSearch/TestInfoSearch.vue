@@ -39,7 +39,7 @@ onMounted(() => {
       <input v-model="searchStDate" type="date" />
       <input v-model="searchEdDate" type="date" />
       <button @click="handlerSearch">검색</button>
-      <button @click="modalState.$patch({ isOpen: true, type: 'testInfo' })">신규</button>
+      <button @click="modalState.$patch({ isOpen: true, type: 'testInfoNew' })">신규</button>
     </div>
   </div>
 </template>
