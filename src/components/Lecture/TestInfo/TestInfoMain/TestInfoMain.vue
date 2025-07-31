@@ -5,6 +5,7 @@ import { onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useModalState } from '@/stores/modalState';
 import TestInfoModal from '../TestInfoModal/TestInfoModal.vue';
+import TestQuestionInfo from '../TestInfoModal/TestQuestionInfo.vue';
 
 const route = useRoute();
 const testInfoList = ref([]);
@@ -41,6 +42,14 @@ const testInfoDeatil = (lecId, testId) => {
   detailLecId.value = lecId;
   detailTestId.value = testId;
 };
+
+const testQuestion = (lecId, testId) => {
+  modalState.$patch({ isOpen: true, type: 'testQuestion' });
+  detailLecId.value = lecId;
+  detailTestId.value = testId;
+
+  console.log(lecId, testId);
+};
 </script>
 
 <template>
@@ -73,7 +82,11 @@ const testInfoDeatil = (lecId, testId) => {
             <td class="notice-cell">{{ testInfo.testBeginDate }}</td>
             <td class="notice-cell">{{ testInfo.testEndDate }}</td>
             <td class="notice-cell">{{ testInfo.testRegDate.substr(0, 10) }}</td>
-            <td class="notice-cell"><button class="button">시험문제보기</button></td>
+            <td class="notice-cell">
+              <button class="button" @click="testQuestion(testInfo.lecId, testInfo.testId)">
+                시험문제보기
+              </button>
+            </td>
           </tr>
         </template>
         <template v-else>
@@ -97,6 +110,11 @@ const testInfoDeatil = (lecId, testId) => {
     :detail-test-id
     @post-success="testInfoSearch()"
     @un-mounted-modal="detailId = $event"
+  />
+  <TestQuestionInfo
+    v-if="modalState.isOpen && modalState.type === 'testQuestion'"
+    :detail-lec-id
+    :detail-test-id
   />
 </template>
 
